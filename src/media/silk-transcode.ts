@@ -69,6 +69,16 @@ function pcmBytesToWav(pcm: Uint8Array, sampleRate: number): Buffer {
 }
 
 /** True when `buf` is Tencent SILK (`#!SILK_V3` or `\x02#!SILK_V3`). */
+export function ensureTencentSilk(buf: Buffer): Buffer {
+  if (buf.length >= SILK_MAGIC.length + 1 && buf[0] === TENCENT_SILK_PREFIX && buf.subarray(1, 1 + SILK_MAGIC.length).equals(SILK_MAGIC)) {
+    return buf;
+  }
+  if (buf.length >= SILK_MAGIC.length && buf.subarray(0, SILK_MAGIC.length).equals(SILK_MAGIC)) {
+    return Buffer.concat([Buffer.from([TENCENT_SILK_PREFIX]), buf]);
+  }
+  return buf;
+}
+
 export function isSilkBuffer(buf: Buffer): boolean {
   if (buf.length >= SILK_MAGIC.length && buf.subarray(0, SILK_MAGIC.length).equals(SILK_MAGIC)) {
     return true;
@@ -177,6 +187,13 @@ export async function prepareOutboundVoice(filePath: string): Promise<OutboundVo
   };
 
   if (isSilkBuffer(src)) {
+    const tencent = ensureTencentSilk(src);
+    if (tencent.length !== src.length || tencent[0] !== src[0]) {
+      const prefixed = path.join(os.tmpdir(), `weixin-voice-prefixed-${process.pid}-${Date.now()}.silk`);
+      await fs.writeFile(prefixed, tencent);
+      temps.push(prefixed);
+      filePath = prefixed;
+    }
     let playtimeMs = 0;
     try {
       const { getDuration } = await import("silk-wasm");
@@ -217,7 +234,7 @@ export async function prepareOutboundVoice(filePath: string): Promise<OutboundVo
   try {
     const { encode } = await import("silk-wasm");
     const encoded = await encode(wavBuf, SILK_SAMPLE_RATE);
-    const silkBuf = Buffer.from(encoded.data);
+    const silkBuf = ensureTencentSilk(Buffer.from(encoded.data));
     const playtimeMs = Math.max(1, Math.round(encoded.duration || 0));
     const outPath = path.join(os.tmpdir(), `weixin-voice-${process.pid}-${Date.now()}.silk`);
     await fs.writeFile(outPath, silkBuf);

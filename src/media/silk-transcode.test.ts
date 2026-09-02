@@ -113,7 +113,8 @@ describe("prepareOutboundVoice", () => {
     fs.writeFileSync(tmp, Buffer.concat([Buffer.from("#!SILK_V3"), Buffer.alloc(80)]));
     try {
       const meta = await prepareOutboundVoice(tmp);
-      expect(meta.filePath).toBe(tmp);
+      expect(fs.readFileSync(meta.filePath)[0]).toBe(0x02);
+      expect(meta.filePath).not.toBe(tmp);
       expect(meta.encodeType).toBe(6);
       expect(meta.playtimeMs).toBe(1234);
       expect(meta.sampleRate).toBe(24000);
@@ -226,3 +227,14 @@ describe("prepareOutboundVoice error paths", () => {
       fs.rmSync(tmp, { force: true });
     }
   });
+
+describe("ensureTencentSilk", () => {
+  it("prepends 0x02 to raw #!SILK_V3 and is idempotent", async () => {
+    const { ensureTencentSilk } = await import("./silk-transcode.js");
+    const raw = Buffer.concat([Buffer.from("#!SILK_V3"), Buffer.from([1, 2, 3])]);
+    const out = ensureTencentSilk(raw);
+    expect(out[0]).toBe(0x02);
+    expect(out.subarray(1, 10).toString("ascii")).toBe("#!SILK_V3");
+    expect(ensureTencentSilk(out)).toBe(out);
+  });
+});
