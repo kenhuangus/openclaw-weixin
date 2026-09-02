@@ -102,6 +102,11 @@ export async function downloadMediaFromItem(
           has_full_url: Boolean(voice.media?.full_url),
           has_query_param: Boolean(voice.media?.encrypt_query_param),
           aes_key_len: voice.media?.aes_key ? String(voice.media.aes_key).length : 0,
+          aes_key: voice.media?.aes_key,
+          encrypt_query_param: voice.media?.encrypt_query_param,
+          full_url: voice.media?.full_url,
+          media_keys: voice.media ? Object.keys(voice.media) : [],
+          voice_keys: Object.keys(voice),
         }),
       ).catch(() => undefined);
       }
