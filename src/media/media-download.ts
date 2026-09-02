@@ -85,6 +85,7 @@ export async function downloadMediaFromItem(
       logger.info(
         `${label} inbound-voice encode_type=${voice.encode_type} sample_rate=${voice.sample_rate} playtime=${voice.playtime} bits=${voice.bits_per_sample} size=${voice.size} bytes=${silkBuf.length} hex16=${hex16} isSilk=${isSilkBuffer(silkBuf)}`,
       );
+      if (process.env.WEIXIN_DUMP_INBOUND_VOICE === "1") {
       await fs.writeFile("/tmp/oc-last-inbound-voice.silk", silkBuf).catch(() => undefined);
       await fs.writeFile(
         "/tmp/oc-last-inbound-voice.json",
@@ -99,6 +100,7 @@ export async function downloadMediaFromItem(
           isSilk: isSilkBuffer(silkBuf),
         }),
       ).catch(() => undefined);
+      }
       logger.debug(`${label} voice: decrypted ${silkBuf.length} bytes, attempting silk transcode`);
       const wavBuf = await silkToWav(silkBuf);
       if (wavBuf) {
