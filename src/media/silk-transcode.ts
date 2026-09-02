@@ -258,7 +258,7 @@ export async function prepareOutboundVoice(filePath: string): Promise<OutboundVo
 
 export function isWeixinAudioFilename(filePath: string): boolean {
   const ext = path.extname(filePath).toLowerCase();
-  return [".silk", ".slk", ".amr", ".mp3", ".wav", ".ogg", ".opus", ".m4a", ".aac", ".flac"].includes(
+  return [".silk", ".slk", ".amr", ".mp3", ".wav", ".ogg", ".opus", ".m4a", ".aac", ".flac", ".pcm", ".aiff", ".aif"].includes(
     ext,
   );
 }

@@ -267,14 +267,22 @@ export const weixinPlugin: ChannelPlugin<ResolvedWeixinAccount> = {
         }
         const contextToken = getContextToken(account.accountId, ctx.to);
         try {
-          const mediaCtx = ctx as typeof ctx & { asVoice?: boolean; forceDocument?: boolean };
+          const mediaCtx = ctx as typeof ctx & {
+            asVoice?: boolean;
+            audioAsVoice?: boolean;
+            forceDocument?: boolean;
+          };
+          const asVoice = mediaCtx.audioAsVoice ?? mediaCtx.asVoice;
+          logger.info(
+            `sendMedia: file=${filePath} audioAsVoice=${String(mediaCtx.audioAsVoice)} asVoice=${String(mediaCtx.asVoice)} forceDocument=${String(mediaCtx.forceDocument)} resolvedAsVoice=${String(asVoice)}`,
+          );
           const result = await sendWeixinMediaFile({
             filePath,
             to: ctx.to,
             text,
             opts: { baseUrl: account.baseUrl, token: account.token, contextToken },
             cdnBaseUrl: account.cdnBaseUrl,
-            asVoice: mediaCtx.asVoice,
+            asVoice,
             forceDocument: mediaCtx.forceDocument,
           });
           emitWeixinMessageSent({ to: ctx.to, content: text, success: true, accountId: account.accountId });
