@@ -288,7 +288,7 @@ describe("sendVoiceMessageWeixin", () => {
       opts: { baseUrl: "https://api.com", contextToken: "ctx" },
       playtimeMs: 6100,
       encodeType: 6,
-      sampleRate: 24000,
+      sampleRate: 16000,
     });
     expect(result.messageId).toBeDefined();
     expect(mockSendMessageApi).toHaveBeenCalledTimes(1);
@@ -296,7 +296,7 @@ describe("sendVoiceMessageWeixin", () => {
     expect(item.type).toBe(MessageItemType.VOICE);
     expect(item.voice_item.encode_type).toBe(6);
     expect(item.voice_item.playtime).toBe(6100);
-    expect(item.voice_item.sample_rate).toBe(24000);
+    expect(item.voice_item.sample_rate).toBe(16000);
     expect(item.voice_item.bits_per_sample).toBe(16);
     expect(item.voice_item.size).toBe(1024);
   });
@@ -315,7 +315,7 @@ describe("sendVoiceMessageWeixin", () => {
     expect(mockSendMessageApi).toHaveBeenCalledTimes(2);
     const voiceItem = mockSendMessageApi.mock.calls[1][0].body.msg.item_list[0];
     expect(voiceItem.voice_item.playtime).toBe(1);
-    expect(voiceItem.voice_item.encode_type).toBe(6);
+    expect(voiceItem.voice_item.encode_type).toBe(4);
   });
 
 describe("sendMessageItemWeixin extra", () => {

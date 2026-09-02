@@ -42,7 +42,7 @@ describe("silkToWav", () => {
     expect(result!.toString("ascii", 12, 16)).toBe("fmt ");
     expect(result!.readUInt16LE(20)).toBe(1); // PCM format
     expect(result!.readUInt16LE(22)).toBe(1); // mono
-    expect(result!.readUInt32LE(24)).toBe(24000); // sample rate
+    expect(result!.readUInt32LE(24)).toBe(16000); // sample rate
     expect(result!.readUInt16LE(34)).toBe(16); // bits per sample
     expect(result!.toString("ascii", 36, 40)).toBe("data");
   });
@@ -80,7 +80,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-function writeSilentWav(filePath: string, sampleRate = 24000, ms = 40): void {
+function writeSilentWav(filePath: string, sampleRate = 16000, ms = 40): void {
   const samples = Math.round(sampleRate * (ms / 1000));
   const pcmBytes = samples * 2;
   const buf = Buffer.alloc(44 + pcmBytes);
@@ -115,9 +115,9 @@ describe("prepareOutboundVoice", () => {
       const meta = await prepareOutboundVoice(tmp);
       expect(fs.readFileSync(meta.filePath)[0]).toBe(0x02);
       expect(meta.filePath).not.toBe(tmp);
-      expect(meta.encodeType).toBe(6);
+      expect(meta.encodeType).toBe(4);
       expect(meta.playtimeMs).toBe(1234);
-      expect(meta.sampleRate).toBe(24000);
+      expect(meta.sampleRate).toBe(16000);
       await meta.cleanup();
     } finally {
       fs.rmSync(tmp, { force: true });
@@ -137,7 +137,7 @@ describe("prepareOutboundVoice", () => {
     writeSilentWav(tmp);
     try {
       const meta = await prepareOutboundVoice(tmp);
-      expect(meta.encodeType).toBe(6);
+      expect(meta.encodeType).toBe(4);
       expect(meta.playtimeMs).toBe(40);
       expect(isSilkBuffer(fs.readFileSync(meta.filePath))).toBe(true);
       await meta.cleanup();

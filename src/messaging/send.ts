@@ -295,7 +295,7 @@ export async function sendFileMessageWeixin(params: {
 
 /**
  * Send a native voice bubble (语音条) using a previously uploaded VOICE media.
- * VoiceItem: media (CDN ref), encode_type (6=SILK), playtime (ms), sample_rate, bits_per_sample.
+ * VoiceItem: media (CDN ref), encode_type (WeChat client uses 4 with SILK bytes at 16 kHz), playtime (ms), sample_rate, bits_per_sample.
  * Optional text caption is sent as a separate TEXT item first.
  */
 export async function sendVoiceMessageWeixin(params: {
@@ -313,8 +313,8 @@ export async function sendVoiceMessageWeixin(params: {
     logger.warn(`sendVoiceMessageWeixin: contextToken missing for to=${to}, sending without context`);
   }
   const playtime = Math.max(1, Math.round(params.playtimeMs));
-  const encodeType = params.encodeType ?? 6;
-  const sampleRate = params.sampleRate ?? 24_000;
+  const encodeType = params.encodeType ?? 4;
+  const sampleRate = params.sampleRate ?? 16_000;
   const bitsPerSample = params.bitsPerSample ?? 16;
 
   logger.info(

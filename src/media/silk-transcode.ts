@@ -7,7 +7,7 @@ import path from "node:path";
 import { logger } from "../util/logger.js";
 
 /** Default sample rate for Weixin voice messages (SILK_V3). */
-export const SILK_SAMPLE_RATE = 24_000;
+export const SILK_SAMPLE_RATE = 16_000;
 
 /** proto VoiceItem.encode_type */
 export const VoiceEncodeType = {
@@ -209,7 +209,7 @@ export async function prepareOutboundVoice(filePath: string): Promise<OutboundVo
       filePath,
       playtimeMs,
       sampleRate: SILK_SAMPLE_RATE,
-      encodeType: VoiceEncodeType.SILK,
+      encodeType: VoiceEncodeType.SPEEX,
       bitsPerSample: 16,
       cleanup,
     };
@@ -246,7 +246,7 @@ export async function prepareOutboundVoice(filePath: string): Promise<OutboundVo
       filePath: outPath,
       playtimeMs,
       sampleRate: SILK_SAMPLE_RATE,
-      encodeType: VoiceEncodeType.SILK,
+      encodeType: VoiceEncodeType.SPEEX,
       bitsPerSample: 16,
       cleanup,
     };

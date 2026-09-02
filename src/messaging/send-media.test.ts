@@ -80,7 +80,7 @@ beforeEach(() => {
   mockPrepareOutboundVoice.mockResolvedValue({
     filePath: "/tmp/out.silk",
     playtimeMs: 6100,
-    sampleRate: 24000,
+    sampleRate: 16000,
     encodeType: 6,
     bitsPerSample: 16,
     cleanup: vi.fn().mockResolvedValue(undefined),
@@ -154,7 +154,7 @@ describe("sendWeixinMediaFile", () => {
         to: "user1",
         playtimeMs: 6100,
         encodeType: 6,
-        sampleRate: 24000,
+        sampleRate: 16000,
       }),
     );
   });
