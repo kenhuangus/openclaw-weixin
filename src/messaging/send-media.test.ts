@@ -142,21 +142,14 @@ describe("sendWeixinMediaFile", () => {
     expect(mockUploadFileAttachmentToWeixin).toHaveBeenCalledOnce();
   });
 
-  it("routes audio/mpeg to native VOICE", async () => {
-    mockUploadVoiceToWeixin.mockResolvedValueOnce(fakeUploaded);
-    mockSendVoiceMessageWeixin.mockResolvedValueOnce({ messageId: "voice1" });
+  it("routes audio/mpeg to FILE attachment (native VOICE disabled)", async () => {
+    mockUploadFileAttachmentToWeixin.mockResolvedValueOnce(fakeUploaded);
+    mockSendFileMessageWeixin.mockResolvedValueOnce({ messageId: "file-audio" });
     const result = await sendWeixinMediaFile({ ...baseParams, filePath: "/tmp/clip.mp3" });
-    expect(result.messageId).toBe("voice1");
-    expect(mockPrepareOutboundVoice).toHaveBeenCalledWith("/tmp/clip.mp3");
-    expect(mockUploadVoiceToWeixin).toHaveBeenCalledOnce();
-    expect(mockSendVoiceMessageWeixin).toHaveBeenCalledWith(
-      expect.objectContaining({
-        to: "user1",
-        playtimeMs: 6100,
-        encodeType: 6,
-        sampleRate: 16000,
-      }),
-    );
+    expect(result.messageId).toBe("file-audio");
+    expect(mockPrepareOutboundVoice).not.toHaveBeenCalled();
+    expect(mockUploadVoiceToWeixin).not.toHaveBeenCalled();
+    expect(mockUploadFileAttachmentToWeixin).toHaveBeenCalledOnce();
   });
 
   it("forceDocument keeps audio as FILE attachment", async () => {
@@ -171,27 +164,29 @@ describe("sendWeixinMediaFile", () => {
     expect(mockUploadFileAttachmentToWeixin).toHaveBeenCalledOnce();
   });
 
-  it("falls back to FILE when native VOICE encode/send fails", async () => {
-    mockPrepareOutboundVoice.mockRejectedValueOnce(new Error("no ffmpeg"));
+  it("does not call native VOICE helpers for audio", async () => {
     mockUploadFileAttachmentToWeixin.mockResolvedValueOnce(fakeUploaded);
     mockSendFileMessageWeixin.mockResolvedValueOnce({ messageId: "fallback" });
     const result = await sendWeixinMediaFile({ ...baseParams, filePath: "/tmp/clip.mp3" });
     expect(result.messageId).toBe("fallback");
+    expect(mockPrepareOutboundVoice).not.toHaveBeenCalled();
+    expect(mockSendVoiceMessageWeixin).not.toHaveBeenCalled();
     expect(mockSendFileMessageWeixin).toHaveBeenCalledOnce();
   });
 });
 
-  it("asVoice true forces native VOICE even for unknown extensions", async () => {
+  it("asVoice true still sends FILE while native VOICE is disabled", async () => {
     mockIsWeixinAudioFilename.mockReturnValue(false);
-    mockUploadVoiceToWeixin.mockResolvedValueOnce(fakeUploaded);
-    mockSendVoiceMessageWeixin.mockResolvedValueOnce({ messageId: "forced" });
+    mockUploadFileAttachmentToWeixin.mockResolvedValueOnce(fakeUploaded);
+    mockSendFileMessageWeixin.mockResolvedValueOnce({ messageId: "forced-file" });
     const result = await sendWeixinMediaFile({
       ...baseParams,
       filePath: "/tmp/data.bin",
       asVoice: true,
     });
-    expect(result.messageId).toBe("forced");
-    expect(mockUploadVoiceToWeixin).toHaveBeenCalledOnce();
+    expect(result.messageId).toBe("forced-file");
+    expect(mockUploadVoiceToWeixin).not.toHaveBeenCalled();
+    expect(mockUploadFileAttachmentToWeixin).toHaveBeenCalledOnce();
   });
 
   it("asVoice false keeps audio as FILE", async () => {
