@@ -220,7 +220,7 @@ export async function sendImageMessageWeixin(params: {
     image_item: {
       media: {
         encrypt_query_param: uploaded.downloadEncryptedQueryParam,
-        aes_key: Buffer.from(uploaded.aeskey).toString("base64"),
+        aes_key: Buffer.from(uploaded.aeskey, "hex").toString("base64"),
         encrypt_type: 1,
       },
       mid_size: uploaded.fileSizeCiphertext,
@@ -251,7 +251,7 @@ export async function sendVideoMessageWeixin(params: {
     video_item: {
       media: {
         encrypt_query_param: uploaded.downloadEncryptedQueryParam,
-        aes_key: Buffer.from(uploaded.aeskey).toString("base64"),
+        aes_key: Buffer.from(uploaded.aeskey, "hex").toString("base64"),
         encrypt_type: 1,
       },
       video_size: uploaded.fileSizeCiphertext,
@@ -282,7 +282,7 @@ export async function sendFileMessageWeixin(params: {
     file_item: {
       media: {
         encrypt_query_param: uploaded.downloadEncryptedQueryParam,
-        aes_key: Buffer.from(uploaded.aeskey).toString("base64"),
+        aes_key: Buffer.from(uploaded.aeskey, "hex").toString("base64"),
         encrypt_type: 1,
       },
       file_name: fileName,
@@ -326,7 +326,7 @@ export async function sendVoiceMessageWeixin(params: {
     voice_item: {
       media: {
         encrypt_query_param: uploaded.downloadEncryptedQueryParam,
-        aes_key: Buffer.from(uploaded.aeskey).toString("base64"),
+        aes_key: Buffer.from(uploaded.aeskey, "hex").toString("base64"),
         encrypt_type: 1,
       },
       encode_type: encodeType,
