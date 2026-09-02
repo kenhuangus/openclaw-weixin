@@ -129,8 +129,7 @@ export async function processOneMessage(
     full.item_list?.find(
       (i) =>
         i.type === MessageItemType.VOICE &&
-        hasDownloadableMedia(i.voice_item?.media) &&
-        !i.voice_item?.text,
+        hasDownloadableMedia(i.voice_item?.media),
     );
   const refMediaItem = !mainMediaItem
     ? full.item_list?.find(
