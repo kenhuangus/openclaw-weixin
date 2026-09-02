@@ -175,7 +175,7 @@ export type OutboundVoiceMeta = {
 /**
  * Prepare a local audio file for Weixin native VOICE send.
  * Already-SILK files are used as-is; anything else is transcoded to
- * 24 kHz mono SILK_V3 via ffmpeg (WAV) + silk-wasm (encode).
+ * 16 kHz mono SILK_V3 via ffmpeg (WAV) + silk-wasm (encode), matching inbound WeChat voice bubbles.
  */
 export async function prepareOutboundVoice(filePath: string): Promise<OutboundVoiceMeta> {
   const src = await fs.readFile(filePath);
@@ -221,7 +221,7 @@ export async function prepareOutboundVoice(filePath: string): Promise<OutboundVo
   if (ext === ".wav" && src.length > 44 && src.subarray(0, 4).toString("ascii") === "RIFF") {
     wavBuf = src;
   } else if (ffmpegBin) {
-    logger.info(`prepareOutboundVoice: ffmpeg ${ffmpegBin} → 24kHz mono WAV from ${filePath}`);
+    logger.info(`prepareOutboundVoice: ffmpeg ${ffmpegBin} → ${SILK_SAMPLE_RATE}Hz mono WAV from ${filePath}`);
     wavBuf = await runFfmpegToWav(filePath, ffmpegBin);
   /* v8 ignore stop */
   } else {

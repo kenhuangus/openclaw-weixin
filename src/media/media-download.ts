@@ -98,6 +98,10 @@ export async function downloadMediaFromItem(
           bytes: silkBuf.length,
           hex16,
           isSilk: isSilkBuffer(silkBuf),
+          encrypt_type: voice.media?.encrypt_type,
+          has_full_url: Boolean(voice.media?.full_url),
+          has_query_param: Boolean(voice.media?.encrypt_query_param),
+          aes_key_len: voice.media?.aes_key ? String(voice.media.aes_key).length : 0,
         }),
       ).catch(() => undefined);
       }
