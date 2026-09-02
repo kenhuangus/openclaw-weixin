@@ -333,7 +333,7 @@ export async function sendVoiceMessageWeixin(params: {
       bits_per_sample: bitsPerSample,
       sample_rate: sampleRate,
       playtime,
-      size: uploaded.fileSize,
+      // Inbound 语音条 from personal WeChat often omit size; sending it is optional.
     },
   };
 

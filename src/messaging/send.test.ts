@@ -298,7 +298,7 @@ describe("sendVoiceMessageWeixin", () => {
     expect(item.voice_item.playtime).toBe(6100);
     expect(item.voice_item.sample_rate).toBe(16000);
     expect(item.voice_item.bits_per_sample).toBe(16);
-    expect(item.voice_item.size).toBe(1024);
+    expect(item.voice_item.size).toBeUndefined();
   });
 });
 
