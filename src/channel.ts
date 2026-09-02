@@ -19,6 +19,8 @@ import { notifyStop, notifyStart } from "./api/api.js";
 import { assertSessionActive } from "./api/session-guard.js";
 import { getContextToken, findAccountIdsByContextToken, restoreContextTokens, clearContextTokensForAccount } from "./messaging/inbound.js";
 import { logger } from "./util/logger.js";
+import { getMimeFromFilename } from "./media/mime.js";
+import { isWeixinAudioFilename } from "./media/silk-transcode.js";
 import {
   DEFAULT_ILINK_BOT_TYPE,
   startWeixinLoginWithQr,
@@ -273,6 +275,24 @@ export const weixinPlugin: ChannelPlugin<ResolvedWeixinAccount> = {
             forceDocument?: boolean;
           };
           const asVoice = mediaCtx.audioAsVoice ?? mediaCtx.asVoice;
+          const mime = getMimeFromFilename(filePath);
+          const isAudio =
+            asVoice === true ||
+            mime.startsWith("audio/") ||
+            isWeixinAudioFilename(filePath);
+          if (isAudio) {
+            const replyText = text.trim() || "收到语音，我用文字回复。";
+            logger.info(
+              `sendMedia: dropping outbound audio file=${filePath} mime=${mime} asVoice=${String(asVoice)} -> TEXT`,
+            );
+            const result = await sendMessageWeixin({
+              to: ctx.to,
+              text: replyText,
+              opts: { baseUrl: account.baseUrl, token: account.token, contextToken },
+            });
+            emitWeixinMessageSent({ to: ctx.to, content: replyText, success: true, accountId: account.accountId });
+            return { channel: "openclaw-weixin", messageId: result.messageId };
+          }
           logger.info(
             `sendMedia: file=${filePath} audioAsVoice=${String(mediaCtx.audioAsVoice)} asVoice=${String(mediaCtx.asVoice)} forceDocument=${String(mediaCtx.forceDocument)} resolvedAsVoice=${String(asVoice)}`,
           );
